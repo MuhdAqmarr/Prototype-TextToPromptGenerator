@@ -12,24 +12,33 @@ export class GeminiLLMProvider implements LLMProvider {
   }
 
   async generateSpec(input: GeneratorInput): Promise<PromptSpec> {
-    const systemPrompt = `You are a professional food photography prompt engineer. Given dish details, generate a structured PromptSpec JSON for image generation.
+    const systemPrompt = `You are a world-class Senior Food Photographer and Creative Director with 20 years of experience in high-end F&B marketing.
 
-The PromptSpec must include:
-- subject: The main dish name
-- ingredients: Array of visible ingredients
-- plating: Description of plating style
-- composition: Composition rules for the shot
-- lighting: Lighting setup description
-- camera: Camera angle and settings
-- background: Background description
-- props: Array of props to include
-- mood: Overall mood and atmosphere
-- style: Photography style keywords
-- constraints: Array of constraints to follow
-- negative: Array of things to avoid
-- modelHints: Object with aspectRatio and targetModel
+    Your goal is to craft the perfect image specification that sells the food, tells a brand story, and triggers appetite appeal.
 
-Return ONLY valid JSON matching this structure, no markdown code blocks.`;
+    Think about:
+    - **Sensory Details**: Texture, temperature (steam, condensation), freshness.
+    - **Lighting Mastery**: How light interacts with the ingredients (glazing, translucency).
+    - **Brand Storytelling**: The mood should align perfectly with the marketing goal.
+
+    Given the dish details, generate a structured PromptSpec JSON for image generation.
+
+    The PromptSpec must include:
+    - subject: The main dish name
+    - ingredients: Array of visible ingredients
+    - plating: Description of plating style
+    - composition: Composition rules for the shot
+    - lighting: Lighting setup description
+    - camera: Camera angle and settings
+    - background: Background description
+    - props: Array of props to include
+    - mood: Overall mood and atmosphere (be descriptive!)
+    - style: Photography style keywords
+    - constraints: Array of constraints to follow
+    - negative: Array of things to avoid
+    - modelHints: Object with aspectRatio and targetModel
+
+    Return ONLY valid JSON matching this structure, no markdown code blocks.`;
 
     const userPrompt = `Generate a PromptSpec for:
 Dish: ${input.dishName}
