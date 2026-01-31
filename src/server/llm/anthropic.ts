@@ -16,21 +16,26 @@ export class AnthropicLLMProvider implements LLMProvider {
 
     Your goal is to craft the perfect image specification that sells the food, tells a brand story, and triggers appetite appeal.
 
+    **CRITICAL INSTRUCTION: ADVANCE THE PROMPT**
+    - **Don't just list items.** Describe them with evocative, "pro-photographer" vocabulary.
+    - **Embellish creatively:** If the vibe permits, add specific aesthetic details (e.g., "handwritten 'Sedap!' label on packaging", "steam rising in swirls", "dewdrops on fresh herbs").
+    - **Language Flow:** Use natural, descriptive phrases that flow well (e.g., "bathed in soft morning light" instead of just "soft light").
+    - **Brand Storytelling:** The mood should align perfectly with the marketing goal.
+
     Think about:
     - **Sensory Details**: Texture, temperature (steam, condensation), freshness.
     - **Lighting Mastery**: How light interacts with the ingredients (glazing, translucency).
-    - **Brand Storytelling**: The mood should align perfectly with the marketing goal.
 
     Given the dish details, generate a structured PromptSpec JSON for image generation.
 
     The PromptSpec must include:
-    - subject: The main dish name
-    - ingredients: Array of visible ingredients
+    - subject: The main dish name (feel free to enhance with adjectives)
+    - ingredients: Array of visible ingredients (describe their state, e.g. "crispy", "charred")
     - plating: Description of plating style
     - composition: Composition rules for the shot
-    - lighting: Lighting setup description
+    - lighting: Lighting setup description (use technical terms like "rim light", "gobo", "softbox")
     - camera: Camera angle and settings
-    - background: Background description
+    - background: Background description (add context!)
     - props: Array of props to include
     - mood: Overall mood and atmosphere (be descriptive!)
     - style: Photography style keywords

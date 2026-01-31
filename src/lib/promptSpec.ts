@@ -95,7 +95,9 @@ export const PromptSpecSchema = z.object({
   background: z.string(),
   props: z.array(z.string()),
   mood: z.string(),
-  style: z.string(),
+  style: z.union([z.string(), z.array(z.string())]).transform((val) =>
+    Array.isArray(val) ? val.join(", ") : val
+  ),
   constraints: z.array(z.string()),
   negative: z.array(z.string()),
   modelHints: z.record(z.string(), z.string()),

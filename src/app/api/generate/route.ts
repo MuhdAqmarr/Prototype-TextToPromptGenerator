@@ -92,18 +92,22 @@ export async function POST(request: Request) {
         punchy_social: "scroll-stopping, vibrant and bold, instagram-worthy",
       };
 
+      const styleStr = Array.isArray(spec.style)
+        ? spec.style.join(", ")
+        : spec.style;
+
       const basePrompt = [
-        spec.subject,
-        spec.ingredients.join(", "),
-        spec.plating,
-        spec.lighting,
-        spec.camera,
-        spec.background,
-        spec.mood,
-        spec.style,
+        `${spec.subject} featuring ${spec.ingredients.join(", ")}.`,
+        `${spec.plating}.`,
+        `${spec.lighting}.`,
+        `${spec.camera}.`,
+        `${spec.background}.`,
+        `Mood: ${spec.mood}.`,
+        `Style: ${styleStr}.`,
+        spec.composition,
       ]
         .filter(Boolean)
-        .join(", ");
+        .join(" ");
 
       output = {
         spec,
