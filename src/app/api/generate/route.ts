@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { GeneratorInputSchema, type GeneratorOutput } from "@/lib/promptSpec";
-import { generatePrompts, buildPromptSpec } from "@/lib/promptEngine";
+import { generatePrompts } from "@/lib/promptEngine";
 import { hashInput } from "@/lib/hash";
 import { getRateLimiter } from "@/server/rateLimit/memoryTokenBucket";
-import { createMockProvider } from "@/server/llm/mock";
 import { createAnthropicProvider } from "@/server/llm/anthropic";
+import { createGeminiProvider } from "@/server/llm/gemini";
 import { renderMidjourney } from "@/renderers/midjourney";
 import { renderSDXL } from "@/renderers/sdxl";
 import { renderDalle } from "@/renderers/dalle";
@@ -66,13 +66,17 @@ export async function POST(request: Request) {
       });
     }
 
+    const geminiKey = process.env.GEMINI_API_KEY;
     const anthropicKey = process.env.ANTHROPIC_API_KEY;
-    const isLLMMode = !!anthropicKey;
+    const isLLMMode = !!geminiKey || !!anthropicKey;
+    const llmProvider = geminiKey ? "gemini" : anthropicKey ? "anthropic" : null;
 
     let output: GeneratorOutput;
 
-    if (isLLMMode) {
-      const provider = createAnthropicProvider(anthropicKey);
+    if (isLLMMode && llmProvider) {
+      const provider = llmProvider === "gemini"
+        ? createGeminiProvider(geminiKey!)
+        : createAnthropicProvider(anthropicKey!);
       const spec = await provider.generateSpec(input);
 
       const renderer =
@@ -143,7 +147,7 @@ export async function POST(request: Request) {
     return NextResponse.json(output, {
       headers: {
         "X-Cache": "MISS",
-        "X-Mode": isLLMMode ? "llm" : "mock",
+        "X-Mode": llmProvider || "mock",
         "X-RateLimit-Remaining": String(rateResult.remaining),
       },
     });

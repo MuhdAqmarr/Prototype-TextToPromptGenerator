@@ -5,6 +5,7 @@ const envSchema = z.object({
     .enum(["development", "production", "test"])
     .default("development"),
   ANTHROPIC_API_KEY: z.string().optional(),
+  GEMINI_API_KEY: z.string().optional(),
 });
 
 function getEnv() {
@@ -19,5 +20,11 @@ function getEnv() {
 export const env = getEnv();
 
 export const isLLMMode = (): boolean => {
-  return !!env.ANTHROPIC_API_KEY;
+  return !!env.ANTHROPIC_API_KEY || !!env.GEMINI_API_KEY;
+};
+
+export const getLLMProvider = (): "anthropic" | "gemini" | null => {
+  if (env.GEMINI_API_KEY) return "gemini";
+  if (env.ANTHROPIC_API_KEY) return "anthropic";
+  return null;
 };
