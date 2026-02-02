@@ -301,6 +301,28 @@ CREATE TABLE usage_logs (
 
 ---
 
+
+---
+
+## 11. Admin Dashboard (Super Admin)
+
+### A. Analytics & Health
+- **Revenue (MRR)**: Stripe integration for real-time sales view
+- **API Cost Monitor**: Track Anthropic/OpenAI spend vs Revenue
+- **User Growth**: Signups vs Churn rate
+
+### B. User Management
+- **Impersonation**: "Log in as user" to debug customer issues
+- **Manual Grant**: Give free Pro Access to influencers/team
+- **Ban/Suspend**: Stop abusers or bots
+
+### C. System Config
+- **Model Switcher**: Emergency toggle (e.g., Switch from Claude to Gemini if API down)
+- **Maintenance Mode**: Close signups temporarily
+- **Announcement Banner**: Push global alerts to all active users
+
+---
+
 ## Next Steps
 1. Review and approve this architecture
 2. Set up Supabase project
