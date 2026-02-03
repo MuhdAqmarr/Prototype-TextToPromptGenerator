@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,9 @@ interface GeneratorFormProps {
 }
 
 export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const form = useForm<GeneratorFormInput, unknown, GeneratorInput>({
     resolver: zodResolver(GeneratorInputSchema),
     defaultValues: {
@@ -70,12 +74,101 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
       strictIngredients: false,
       leaveNegativeSpace: false,
       quickFixes: [],
+      referenceImage: undefined,
     },
   });
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      // Remove data:image/...;base64, prefix
+      const base64Data = base64.split(",")[1];
+      form.setValue("referenceImage", base64Data);
+      setImagePreview(base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    form.setValue("referenceImage", undefined);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Image Upload Drop Zone - Moved to Top */}
+        <FormItem>
+          <FormLabel>Reference Image (Optional)</FormLabel>
+          <div
+            onClick={!imagePreview && !isLoading ? triggerFileInput : undefined}
+            className={`relative border-2 border-dashed rounded-lg p-8 transition-colors ${imagePreview
+                ? "border-primary bg-primary/5"
+                : "border-muted-foreground/25 hover:border-muted-foreground/50 cursor-pointer"
+              }`}
+          >
+            {!imagePreview ? (
+              <div className="text-center pointer-events-none">
+                <div className="mx-auto w-12 h-12 mb-4 text-muted-foreground">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                    />
+                  </svg>
+                </div>
+                <p className="text-sm font-medium mb-1">Drop or upload image here</p>
+                <p className="text-xs text-muted-foreground mb-4">
+                  AI will analyze your image for better prompts
+                </p>
+              </div>
+            ) : (
+              <div className="relative">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="max-h-64 mx-auto rounded-md"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2"
+                  onClick={removeImage}
+                >
+                  Remove
+                </Button>
+              </div>
+            )}
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            disabled={isLoading}
+            className="hidden"
+          />
+        </FormItem>
+
         <FormField
           control={form.control}
           name="dishName"

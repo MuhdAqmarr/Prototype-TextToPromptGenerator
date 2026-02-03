@@ -81,6 +81,7 @@ export const GeneratorInputSchema = z.object({
   strictIngredients: z.boolean().default(false),
   leaveNegativeSpace: z.boolean().default(false),
   quickFixes: z.array(QuickFix).optional(),
+  referenceImage: z.string().optional(), // base64-encoded image
 });
 export type GeneratorInput = z.infer<typeof GeneratorInputSchema>;
 export type GeneratorFormInput = z.input<typeof GeneratorInputSchema>;

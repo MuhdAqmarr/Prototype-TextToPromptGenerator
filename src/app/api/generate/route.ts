@@ -5,6 +5,7 @@ import { hashInput } from "@/lib/hash";
 import { getRateLimiter } from "@/server/rateLimit/memoryTokenBucket";
 import { createAnthropicProvider } from "@/server/llm/anthropic";
 import { createGeminiProvider } from "@/server/llm/gemini";
+import { analyzeImageWithGemini } from "@/server/llm/vision";
 import { renderMidjourney } from "@/renderers/midjourney";
 import { renderSDXL } from "@/renderers/sdxl";
 import { renderDalle } from "@/renderers/dalle";
@@ -74,6 +75,20 @@ export async function POST(request: Request) {
     let output: GeneratorOutput;
 
     if (isLLMMode && llmProvider) {
+      // If user uploaded an image, analyze it first
+      if (input.referenceImage && geminiKey) {
+        console.log("Analyzing uploaded image with Gemini Vision...");
+        const visionResult = await analyzeImageWithGemini(input.referenceImage, geminiKey);
+
+        if (visionResult.error) {
+          console.error("Vision analysis error:", visionResult.error);
+        } else if (visionResult.description) {
+          // Inject image description into the prompt context
+          console.log("Vision analysis:", visionResult.description);
+          input.dishName = `${input.dishName} (Visual reference: ${visionResult.description})`;
+        }
+      }
+
       const provider = llmProvider === "gemini"
         ? createGeminiProvider(geminiKey!)
         : createAnthropicProvider(anthropicKey!);
