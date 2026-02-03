@@ -80,6 +80,13 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
   });
 
   const processFile = (file: File) => {
+    // 3MB limit (Next.js serverless payload limit is ~4.5MB, base64 adds 33%)
+    const MAX_SIZE_MB = 3;
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      alert(`Image is too large. Please upload an image smaller than ${MAX_SIZE_MB}MB.`);
+      return;
+    }
+
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64 = reader.result as string;
@@ -171,7 +178,7 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
                   {isDragging ? "Drop image here" : "Drop or upload image here"}
                 </p>
                 <p className="text-xs text-muted-foreground mb-4">
-                  AI will analyze your image for better prompts
+                  Max size: 3MB. AI will analyze details for better prompts
                 </p>
               </div>
             ) : (
