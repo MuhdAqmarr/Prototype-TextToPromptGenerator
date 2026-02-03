@@ -25,14 +25,15 @@ export async function analyzeImageWithGemini(
                         {
                             parts: [
                                 {
-                                    text: `Analyze this food/product image and provide a detailed visual description for a photography prompt. Focus on:
-- Main subject and key visual elements
-- Colors, textures, and materials
-- State of ingredients (fresh, cooked, crispy, etc.)
-- Notable visual features
-- Lighting and atmosphere hints
+                                    text: `Analyze this food/product image and provide a detailed visual description for a photography prompt. 
 
-Keep the description concise but rich in visual detail (2-3 sentences max).`,
+CRITICAL: Focus on REALISM and AUTHENTICITY to prevent "AI Slop".
+- Identify textures: uneven browning, oil glisten, crumbs, condensation, sauce drips, rough surfaces.
+- Lighting: Describe natural shadows, reflections, and light fall-off.
+- "Perfectly Imperfect" details: Charred edges, steam mist, scattered herbs, organic arrangement.
+- Core elements: Main subject color palette and material properties.
+
+Avoid generic words like "delicious" or "tasty". Describe the PHYSICS of the food.`,
                                 },
                                 {
                                     inline_data: {

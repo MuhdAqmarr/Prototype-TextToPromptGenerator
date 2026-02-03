@@ -9,9 +9,9 @@ export function renderMidjourney(basePrompt: string, spec: PromptSpec): string {
 
   const params = [
     `--ar ${aspectRatio}`,
-    "--stylize 750",
-    "--quality 2",
-    "--v 6",
+    "--style raw",
+    "--stylize 250",
+    "--v 6.1",
   ];
 
   return `${mjFormatted} ${params.join(" ")}`;

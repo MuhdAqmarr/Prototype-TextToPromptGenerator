@@ -16,17 +16,17 @@ export class AnthropicLLMProvider implements LLMProvider {
 
     Your goal is to craft the perfect image specification that sells the food, tells a brand story, and triggers appetite appeal.
 
-    **CRITICAL INSTRUCTION: ADVANCE THE PROMPT**
-    - **Don't just list items.** Describe them with evocative, "pro-photographer" vocabulary.
-    - **Embellish creatively:** If the vibe permits, add specific aesthetic details (e.g., "handwritten 'Sedap!' label on packaging", "steam rising in swirls", "dewdrops on fresh herbs").
-    - **Language Flow:** Use natural, descriptive phrases that flow well (e.g., "bathed in soft morning light" instead of just "soft light").
-    - **Brand Storytelling:** The mood should align perfectly with the marketing goal.
+    **CRITICAL: COMBAT "AI SLOP" & PLASTIC LOOK**
+    - **Avoid Perfection:** Do NOT use words like "perfect", "flawless", "pristine" unless the marketing goal strictly demands it.
+    - **Emphasize Texture:** Use tactile words: "porous", "flaky", "uneven", "coarse", "gooey", "charred", "bubbling".
+    - **Imperfections are Key:** Mention "stray crumbs", "slight sauce splatter", "melting edges", "steam mist", "oil separation" to add realism.
+    - **Camera Quality:** Specify "film grain", "shot on 35mm", "8k raw photo", "ultra-realistic texture", "depth of field".
 
     **GENERATE 3 DISTINCT VARIANTS:**
     You must provide specific styling cues for 3 distinct use cases in the 'variantCues' object:
-    1. **safe_commercial**: Clean, evenly lit, perfectly plated, appetizing but safe. Think standard menu photos or big brand ads. Focus on clarity and product visibility.
-    2. **premium_editorial**: Moody, artistic, dramatic lighting (chiaroscuro), shallow depth of field, 'imperfect' plating (crumbs, drips). Think Bon Appétit or high-end glossy magazines.
-    3. **punchy_social**: High contrast, hard light, vibrant saturation, dynamic angles, busy composition. Think viral TikTok/Instagram food porn.
+    1. **safe_commercial**: High-key, evenly lit, clear product focus. Use "studio lighting", "sharp focus". (Cleaner, but ensuring ingredients look real, not plastic).
+    2. **premium_editorial**: "Raw & Authentic". Chiaroscuro lighting, deep shadows, rich textures. "Shot on Kodachrome", "film grain", "imperfect plating", "natural window light".
+    3. **punchy_social**: "Phone Eats First". Harsh flash, high contrast, vibrant. "Flash photography", "hard shadows", "authentic messy vibe", "up close macro".
 
     Given the dish details, generate a structured PromptSpec JSON for image generation.
 
