@@ -22,9 +22,11 @@ export class AnthropicLLMProvider implements LLMProvider {
     - **Language Flow:** Use natural, descriptive phrases that flow well (e.g., "bathed in soft morning light" instead of just "soft light").
     - **Brand Storytelling:** The mood should align perfectly with the marketing goal.
 
-    Think about:
-    - **Sensory Details**: Texture, temperature (steam, condensation), freshness.
-    - **Lighting Mastery**: How light interacts with the ingredients (glazing, translucency).
+    **GENERATE 3 DISTINCT VARIANTS:**
+    You must provide specific styling cues for 3 distinct use cases in the 'variantCues' object:
+    1. **safe_commercial**: Clean, evenly lit, perfectly plated, appetizing but safe. Think standard menu photos or big brand ads. Focus on clarity and product visibility.
+    2. **premium_editorial**: Moody, artistic, dramatic lighting (chiaroscuro), shallow depth of field, 'imperfect' plating (crumbs, drips). Think Bon Appétit or high-end glossy magazines.
+    3. **punchy_social**: High contrast, hard light, vibrant saturation, dynamic angles, busy composition. Think viral TikTok/Instagram food porn.
 
     Given the dish details, generate a structured PromptSpec JSON for image generation.
 
@@ -42,6 +44,7 @@ export class AnthropicLLMProvider implements LLMProvider {
     - constraints: Array of constraints to follow
     - negative: Array of things to avoid
     - modelHints: Object with aspectRatio and targetModel
+    - variantCues: Object containing specific styling instructions for "safe_commercial", "premium_editorial", and "punchy_social"
 
     Return ONLY valid JSON matching this structure.`;
 

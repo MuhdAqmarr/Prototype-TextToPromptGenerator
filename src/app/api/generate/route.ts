@@ -165,21 +165,27 @@ export async function POST(request: Request) {
           outputs: {
             variantA: {
               prompt: renderer(
-                `${basePrompt}, ${variantModifiers.safe_commercial}`,
+                spec.variantCues?.safe_commercial
+                  ? `${basePrompt} ${spec.variantCues.safe_commercial}`
+                  : `${basePrompt}, ${variantModifiers.safe_commercial}`,
                 spec
               ),
               type: "safe_commercial",
             },
             variantB: {
               prompt: renderer(
-                `${basePrompt}, ${variantModifiers.premium_editorial}`,
+                spec.variantCues?.premium_editorial
+                  ? `${basePrompt} ${spec.variantCues.premium_editorial}`
+                  : `${basePrompt}, ${variantModifiers.premium_editorial}`,
                 spec
               ),
               type: "premium_editorial",
             },
             variantC: {
               prompt: renderer(
-                `${basePrompt}, ${variantModifiers.punchy_social}`,
+                spec.variantCues?.punchy_social
+                  ? `${basePrompt} ${spec.variantCues.punchy_social}`
+                  : `${basePrompt}, ${variantModifiers.punchy_social}`,
                 spec
               ),
               type: "punchy_social",

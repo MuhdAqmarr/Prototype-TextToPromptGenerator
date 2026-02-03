@@ -102,6 +102,11 @@ export const PromptSpecSchema = z.object({
   constraints: z.array(z.string()),
   negative: z.array(z.string()),
   modelHints: z.record(z.string(), z.string()),
+  variantCues: z.object({
+    safe_commercial: z.string().describe("Specific styling cues for clean, commercial advertising look"),
+    premium_editorial: z.string().describe("Specific styling cues for moody, high-end magazine look"),
+    punchy_social: z.string().describe("Specific styling cues for vibrant, bold, scroll-stopping social media look"),
+  }).optional(),
 });
 export type PromptSpec = z.infer<typeof PromptSpecSchema>;
 
