@@ -75,83 +75,123 @@ export async function POST(request: Request) {
     let output: GeneratorOutput;
 
     if (isLLMMode && llmProvider) {
-      // If user uploaded an image, analyze it first
-      if (input.referenceImage && geminiKey) {
-        console.log("Analyzing uploaded image with Gemini Vision...");
-        const visionResult = await analyzeImageWithGemini(input.referenceImage, geminiKey);
+      try {
+        // If user uploaded an image, analyze it first
+        if (input.referenceImage && geminiKey) {
+          console.log("Analyzing uploaded image with Gemini Vision...");
+          const visionResult = await analyzeImageWithGemini(input.referenceImage, geminiKey);
 
-        if (visionResult.error) {
-          console.error("Vision analysis error:", visionResult.error);
-        } else if (visionResult.description) {
-          // Inject image description into the prompt context
-          console.log("Vision analysis:", visionResult.description);
-          input.dishName = `${input.dishName} (Visual reference: ${visionResult.description})`;
+          if (visionResult.error) {
+            console.error("Vision analysis error:", visionResult.error);
+          } else if (visionResult.description) {
+            // Inject image description into the prompt context
+            console.log("Vision analysis:", visionResult.description);
+            input.dishName = `${input.dishName} (Visual reference: ${visionResult.description})`;
+          }
         }
+
+        let spec;
+        let usedProvider = llmProvider;
+
+        try {
+          // Try primary provider first
+          const provider = llmProvider === "gemini"
+            ? createGeminiProvider(geminiKey!)
+            : createAnthropicProvider(anthropicKey!);
+          spec = await provider.generateSpec(input);
+        } catch (error) {
+          console.error(`${llmProvider} failed:`, error);
+
+          // Fallback to the other provider if available
+          if (llmProvider === "gemini" && anthropicKey) {
+            console.log("Falling back to Anthropic...");
+            try {
+              const fallbackProvider = createAnthropicProvider(anthropicKey);
+              spec = await fallbackProvider.generateSpec(input);
+              usedProvider = "anthropic";
+            } catch (fallbackError) {
+              console.error("Anthropic fallback also failed:", fallbackError);
+              throw fallbackError; // Re-throw to trigger template mode
+            }
+          } else if (llmProvider === "anthropic" && geminiKey) {
+            console.log("Falling back to Gemini...");
+            try {
+              const fallbackProvider = createGeminiProvider(geminiKey);
+              spec = await fallbackProvider.generateSpec(input);
+              usedProvider = "gemini";
+            } catch (fallbackError) {
+              console.error("Gemini fallback also failed:", fallbackError);
+              throw fallbackError; // Re-throw to trigger template mode
+            }
+          } else {
+            throw error; // No fallback available
+          }
+        }
+
+        console.log(`Used provider: ${usedProvider}`);
+
+        const renderer =
+          input.targetModel === "sdxl"
+            ? renderSDXL
+            : input.targetModel === "dalle"
+              ? renderDalle
+              : renderMidjourney;
+
+        const variantModifiers = {
+          safe_commercial: "clean commercial look, professional advertising quality",
+          premium_editorial: "editorial food photography, magazine quality",
+          punchy_social: "scroll-stopping, vibrant and bold, instagram-worthy",
+        };
+
+        const styleStr = Array.isArray(spec.style)
+          ? spec.style.join(", ")
+          : spec.style;
+
+        const basePrompt = [
+          `${spec.subject} featuring ${spec.ingredients.join(", ")}.`,
+          `${spec.plating}.`,
+          `${spec.lighting}.`,
+          `${spec.camera}.`,
+          `${spec.background}.`,
+          `Mood: ${spec.mood}.`,
+          `Style: ${styleStr}.`,
+          spec.composition,
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+        output = {
+          spec,
+          outputs: {
+            variantA: {
+              prompt: renderer(
+                `${basePrompt}, ${variantModifiers.safe_commercial}`,
+                spec
+              ),
+              type: "safe_commercial",
+            },
+            variantB: {
+              prompt: renderer(
+                `${basePrompt}, ${variantModifiers.premium_editorial}`,
+                spec
+              ),
+              type: "premium_editorial",
+            },
+            variantC: {
+              prompt: renderer(
+                `${basePrompt}, ${variantModifiers.punchy_social}`,
+                spec
+              ),
+              type: "punchy_social",
+            },
+            negative: spec.negative.join(", "),
+            settings: getModelSettings(input.targetModel, input.aspectRatio),
+          },
+        };
+      } catch (aiError) {
+        console.error("All AI providers failed, falling back to template mode:", aiError);
+        output = generatePrompts(input);
       }
-
-      const provider = llmProvider === "gemini"
-        ? createGeminiProvider(geminiKey!)
-        : createAnthropicProvider(anthropicKey!);
-      const spec = await provider.generateSpec(input);
-
-      const renderer =
-        input.targetModel === "sdxl"
-          ? renderSDXL
-          : input.targetModel === "dalle"
-            ? renderDalle
-            : renderMidjourney;
-
-      const variantModifiers = {
-        safe_commercial: "clean commercial look, professional advertising quality",
-        premium_editorial: "editorial food photography, magazine quality",
-        punchy_social: "scroll-stopping, vibrant and bold, instagram-worthy",
-      };
-
-      const styleStr = Array.isArray(spec.style)
-        ? spec.style.join(", ")
-        : spec.style;
-
-      const basePrompt = [
-        `${spec.subject} featuring ${spec.ingredients.join(", ")}.`,
-        `${spec.plating}.`,
-        `${spec.lighting}.`,
-        `${spec.camera}.`,
-        `${spec.background}.`,
-        `Mood: ${spec.mood}.`,
-        `Style: ${styleStr}.`,
-        spec.composition,
-      ]
-        .filter(Boolean)
-        .join(" ");
-
-      output = {
-        spec,
-        outputs: {
-          variantA: {
-            prompt: renderer(
-              `${basePrompt}, ${variantModifiers.safe_commercial}`,
-              spec
-            ),
-            type: "safe_commercial",
-          },
-          variantB: {
-            prompt: renderer(
-              `${basePrompt}, ${variantModifiers.premium_editorial}`,
-              spec
-            ),
-            type: "premium_editorial",
-          },
-          variantC: {
-            prompt: renderer(
-              `${basePrompt}, ${variantModifiers.punchy_social}`,
-              spec
-            ),
-            type: "punchy_social",
-          },
-          negative: spec.negative.join(", "),
-          settings: getModelSettings(input.targetModel, input.aspectRatio),
-        },
-      };
     } else {
       output = generatePrompts(input);
     }
