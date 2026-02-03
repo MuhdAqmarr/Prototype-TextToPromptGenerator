@@ -81,7 +81,9 @@ export const GeneratorInputSchema = z.object({
   strictIngredients: z.boolean().default(false),
   leaveNegativeSpace: z.boolean().default(false),
   quickFixes: z.array(QuickFix).optional(),
-  referenceImage: z.string().optional(), // base64-encoded image
+  referenceImageUrl: z.string().url("Must be a valid URL").optional(),
+  visualAnalysis: z.string().optional(), // Analysis from Gemini Vision
+  referenceImage: z.string().optional(), // base64-encoded image (legacy)
 });
 export type GeneratorInput = z.infer<typeof GeneratorInputSchema>;
 export type GeneratorFormInput = z.input<typeof GeneratorInputSchema>;
@@ -107,6 +109,7 @@ export const PromptSpecSchema = z.object({
     premium_editorial: z.string().describe("Specific styling cues for moody, high-end magazine look"),
     punchy_social: z.string().describe("Specific styling cues for vibrant, bold, scroll-stopping social media look"),
   }).optional(),
+  referenceImageUrl: z.string().optional(),
 });
 export type PromptSpec = z.infer<typeof PromptSpecSchema>;
 

@@ -16,5 +16,9 @@ export function renderBanana(basePrompt: string, spec: PromptSpec): string {
         return cleanPrompt;
     }
 
-    return `${cleanPrompt}, ${qualityTrigger}`;
+  if (spec.referenceImageUrl) {
+    return `(Image Reference: ${spec.referenceImageUrl}) (Maintain exact composition and plating of reference image) ${cleanPrompt}, ${qualityTrigger}`;
+  }
+
+  return `${cleanPrompt}, ${qualityTrigger}`;
 }

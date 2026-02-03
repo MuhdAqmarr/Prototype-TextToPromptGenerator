@@ -121,6 +121,7 @@ export function buildPromptSpec(input: GeneratorInput): PromptSpec {
       aspectRatio: input.aspectRatio,
       targetModel: input.targetModel,
     },
+    referenceImageUrl: input.referenceImageUrl,
   };
 }
 
@@ -152,6 +153,11 @@ function buildVariantPrompt(
 
   const modifiers = variantModifiers[variant];
 
+  // Strong global constraints if reference image is present
+  const fidelityConstraints = spec.referenceImageUrl
+    ? "MAINTAIN EXACT PLATING, DO NOT CHANGE CROCKERY, KEEP ORIGINAL LAYOUT"
+    : "";
+
   const promptParts = [
     spec.subject,
     spec.ingredients.length > 0 ? `with ${spec.ingredients.join(", ")}` : "",
@@ -163,6 +169,7 @@ function buildVariantPrompt(
     spec.mood,
     spec.style,
     modifiers.join(", "),
+    fidelityConstraints, // Add global fidelity constraint
     spec.constraints.length > 0 ? spec.constraints.join(", ") : "",
   ]
     .filter(Boolean)

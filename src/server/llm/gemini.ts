@@ -22,6 +22,16 @@ export class GeminiLLMProvider implements LLMProvider {
     - **Imperfections are Key:** Mention "stray crumbs", "slight sauce splatter", "melting edges", "steam mist", "oil separation" to add realism.
     - **Camera Quality:** Specify "film grain", "shot on 35mm", "8k raw photo", "ultra-realistic texture", "depth of field".
 
+    **IF VISUAL ANALYSIS IS PROVIDED:**
+    - You **MUST** strictly follow the "Visual Analysis" for Plating, Composition, Lighting, and CROCKERY/PLATE TYPE.
+    - Do NOT hallucinate new props or backgrounds if the analysis describes a specific scene (like "street food vibe" or "rustic metal plate").
+    - If the analysis mentions specific imperfections (burnt edges, messy sauce), INCLUDE THEM.
+    - Your goal is to RECREATE the essence of the uploaded image but with higher fidelity.
+
+    **CONFLICT RESOLUTION:**
+    - If "Visual Analysis" contradicts "Key Ingredients" or "Dish Name", TRUST THE VISUAL ANALYSIS.
+    - The Image is the Source of Truth/Biology. Valid user text inputs are only for Context/Marketing.
+
     **GENERATE 3 DISTINCT VARIANTS:**
     You must provide specific styling cues for 3 distinct use cases in the 'variantCues' object.
     CRITICAL: The value for each cue must be a SINGLE STRING (a sentence), not an object.
@@ -52,6 +62,7 @@ export class GeminiLLMProvider implements LLMProvider {
 
     const userPrompt = `Generate a PromptSpec for:
 Dish: ${input.dishName}
+Visual Analysis (STRICTLY FOLLOW THIS): ${input.visualAnalysis || "None provided - use creative freedom"}
 Key Ingredients: ${input.keyIngredients || "not specified"}
 Cuisine Style: ${input.cuisineStyle || "modern"}
 Marketing Goal: ${input.marketingGoal}

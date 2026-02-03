@@ -22,6 +22,18 @@ export class AnthropicLLMProvider implements LLMProvider {
     - **Imperfections are Key:** Mention "stray crumbs", "slight sauce splatter", "melting edges", "steam mist", "oil separation" to add realism.
     - **Camera Quality:** Specify "film grain", "shot on 35mm", "8k raw photo", "ultra-realistic texture", "depth of field".
 
+    **IF VISUAL ANALYSIS IS PROVIDED (HIGH FIDELITY MODE):**
+    - You **MUST** strictly follow the "Visual Analysis" for Plating, Composition, and Crockery.
+    - **DO NOT CHANGE THE PLATING.** If the analysis says "stainless steel bowl", usage of "ceramic plate" is FORBIDDEN.
+    - **DO NOT CHANGE THE LAYOUT.** If the egg is at 11 o'clock, keep it there.
+    - **Enhance ONLY the Lighting and Atmosphere.** Make it look like a "pro shot" of the EXACT same plate.
+    - Your goal is to **RETAIN THE SUBJECT IDENTITY** while upgrading the visual quality.
+
+    **CONFLICT RESOLUTION:**
+    - If "Visual Analysis" contradicts "Key Ingredients" or "Dish Name" (e.g., user says "Beef" but image shows "Chicken"), TRUST THE VISUAL ANALYSIS.
+    - If user asks for "Spicy" but image looks mild, follow the image's colors.
+    - The Image is the Source of Truth. The Text is just context.
+
     **GENERATE 3 DISTINCT VARIANTS:**
     You must provide specific styling cues for 3 distinct use cases in the 'variantCues' object.
     CRITICAL: The value for each cue must be a SINGLE STRING (a sentence), not an object.
@@ -52,6 +64,7 @@ export class AnthropicLLMProvider implements LLMProvider {
 
     const userPrompt = `Generate a PromptSpec for:
 Dish: ${input.dishName}
+Visual Analysis (STRICTLY FOLLOW THIS): ${input.visualAnalysis || "None provided - use creative freedom"}
 Key Ingredients: ${input.keyIngredients || "not specified"}
 Cuisine Style: ${input.cuisineStyle || "modern"}
 Marketing Goal: ${input.marketingGoal}

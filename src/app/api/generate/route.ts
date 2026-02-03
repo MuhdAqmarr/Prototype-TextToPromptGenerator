@@ -77,17 +77,37 @@ export async function POST(request: Request) {
 
     if (isLLMMode && llmProvider) {
       try {
-        // If user uploaded an image, analyze it first
-        if (input.referenceImage && geminiKey) {
-          console.log("Analyzing uploaded image with Gemini Vision...");
-          const visionResult = await analyzeImageWithGemini(input.referenceImage, geminiKey);
+        // Determine image source for analysis (Upload > URL)
+        let imageToAnalyze = input.referenceImage;
+
+        // If no direct upload but we have a URL, fetch it
+        if (!imageToAnalyze && input.referenceImageUrl) {
+          try {
+            console.log("Fetching image from URL for analysis:", input.referenceImageUrl);
+            const response = await fetch(input.referenceImageUrl);
+            if (response.ok) {
+              const buffer = await response.arrayBuffer();
+              const base64 = Buffer.from(buffer).toString("base64");
+              imageToAnalyze = base64;
+            } else {
+              console.warn("Failed to fetch image from URL:", response.statusText);
+            }
+          } catch (fetchError) {
+            console.error("Error fetching image URL:", fetchError);
+          }
+        }
+
+        // If user uploaded an image or we fetched one, analyze it first
+        if (imageToAnalyze && geminiKey) {
+          console.log("Analyzing image with Gemini Vision...");
+          const visionResult = await analyzeImageWithGemini(imageToAnalyze, geminiKey);
 
           if (visionResult.error) {
             console.error("Vision analysis error:", visionResult.error);
           } else if (visionResult.description) {
-            // Inject image description into the prompt context
+            // Store visual analysis separately
             console.log("Vision analysis:", visionResult.description);
-            input.dishName = `${input.dishName} (Visual reference: ${visionResult.description})`;
+            input.visualAnalysis = visionResult.description;
           }
         }
 
@@ -130,6 +150,11 @@ export async function POST(request: Request) {
         }
 
         console.log(`Used provider: ${usedProvider}`);
+
+        // Re-attach referenceImageUrl if it exists (LLM providers might drop it)
+        if (input.referenceImageUrl) {
+          spec.referenceImageUrl = input.referenceImageUrl;
+        }
 
         const renderer =
           input.targetModel === "sdxl"

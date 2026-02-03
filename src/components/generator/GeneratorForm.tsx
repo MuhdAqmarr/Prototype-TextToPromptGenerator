@@ -23,6 +23,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import {
   GeneratorInputSchema,
@@ -75,6 +76,7 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
       strictIngredients: false,
       leaveNegativeSpace: false,
       quickFixes: [],
+      referenceImageUrl: "",
       referenceImage: undefined,
     },
   });
@@ -209,6 +211,23 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
             className="hidden"
           />
         </FormItem>
+
+        <FormField
+          control={form.control}
+          name="referenceImageUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Reference Image URL (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="https://example.com/image.jpg" {...field} />
+              </FormControl>
+              <FormDescription>
+                Paste a public image URL to use as reference for Midjourney/Flux.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}

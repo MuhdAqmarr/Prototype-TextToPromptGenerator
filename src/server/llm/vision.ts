@@ -32,8 +32,12 @@ CRITICAL: Focus on REALISM and AUTHENTICITY to prevent "AI Slop".
 - Lighting: Describe natural shadows, reflections, and light fall-off.
 - "Perfectly Imperfect" details: Charred edges, steam mist, scattered herbs, organic arrangement.
 - Core elements: Main subject color palette and material properties.
+- **CROCKERY & PLATING:** You MUST describe the EXACT plate/bowl type (e.g., "stainless steel shallow bowl with wide rim", "banana leaf on rattan").
+- **QUANTITY & DISTRIBUTION:** Count the visible pieces of meat/garnishes (e.g., "approx 5 slices of beef"). Describe exact rice color (e.g., "light golden fried rice" vs "dark soy sauce coated").
+- **SPATIAL LAYOUT:** Describe the EXACT position of every element (e.g., "Fried egg at 11 o'clock", "Crackers stacked on left side").
+- **LAYERING:** What is on top of what? (e.g., "Fried shallots sprinkled centrally on rice mound").
 
-Avoid generic words like "delicious" or "tasty". Describe the PHYSICS of the food.`,
+Your goal is to enable a **FORENSIC RECONSTRUCTION** of the scene. The generated image must have the EXACT same layout.`,
                                 },
                                 {
                                     inline_data: {

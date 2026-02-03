@@ -11,6 +11,10 @@ export function renderSDXL(basePrompt: string, spec: PromptSpec): string {
 
   const enhancedPrompt = `${qualityTags.join(", ")}, ${basePrompt}`;
 
+  if (spec.referenceImageUrl) {
+    return `${spec.referenceImageUrl} ${enhancedPrompt.replace(/\s+/g, " ").trim()}`;
+  }
+
   return enhancedPrompt.replace(/\s+/g, " ").trim();
 }
 
