@@ -61,7 +61,7 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
   const form = useForm<GeneratorFormInput, unknown, GeneratorInput>({
     resolver: zodResolver(GeneratorInputSchema),
     defaultValues: {
-      dishName: "",
+      dishName: "Visual Reference (See Analysis)", // Default value to satisfy schema while hidden
       keyIngredients: "",
       cuisineStyle: "",
       dietaryFlags: [],
@@ -229,6 +229,7 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
           )}
         />
 
+        {/* TEMPORARILY HIDDEN FOR VISUAL FIDELITY TESTING
         <FormField
           control={form.control}
           name="dishName"
@@ -259,7 +260,7 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
             </FormItem>
           )}
         />
-
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -273,7 +274,10 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> 
+          */}
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
           <FormField
             control={form.control}
