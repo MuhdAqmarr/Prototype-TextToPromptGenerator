@@ -9,6 +9,7 @@ import { analyzeImageWithGemini } from "@/server/llm/vision";
 import { renderMidjourney } from "@/renderers/midjourney";
 import { renderSDXL } from "@/renderers/sdxl";
 import { renderDalle } from "@/renderers/dalle";
+import { renderBanana } from "@/renderers/banana";
 
 const cache = new Map<string, GeneratorOutput>();
 
@@ -135,7 +136,9 @@ export async function POST(request: Request) {
             ? renderSDXL
             : input.targetModel === "dalle"
               ? renderDalle
-              : renderMidjourney;
+              : input.targetModel === "banana"
+                ? renderBanana
+                : renderMidjourney;
 
         const variantModifiers = {
           safe_commercial: "clean commercial look, professional advertising quality",
@@ -232,10 +235,17 @@ function getModelSettings(
   const settings: Record<string, Record<string, string>> = {
     midjourney: {
       "Aspect Ratio": `--ar ${aspectRatio}`,
-      Stylize: "--stylize 750",
-      Quality: "--quality 2",
-      Version: "--v 6",
+      Stylize: "--stylize 250",
+      Version: "--v 6.1",
+      Style: "--style raw",
       Note: "Add --no text artifacts, watermark for cleaner output",
+    },
+    banana: {
+      "Guidance Scale": "3.5",
+      Steps: "25-30",
+      Sampler: "Euler / Flow",
+      Model: "Nano Banana (Flux.1)",
+      Note: "Uses natural language. Keep prompts conversational.",
     },
     sdxl: {
       "CFG Scale": "7-7.5",

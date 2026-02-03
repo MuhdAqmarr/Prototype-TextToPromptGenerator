@@ -28,7 +28,7 @@ export type Background = z.infer<typeof Background>;
 export const AspectRatio = z.enum(["1:1", "4:5", "9:16", "16:9"]);
 export type AspectRatio = z.infer<typeof AspectRatio>;
 
-export const TargetModel = z.enum(["midjourney", "sdxl", "dalle"]);
+export const TargetModel = z.enum(["midjourney", "sdxl", "dalle", "banana"]);
 export type TargetModel = z.infer<typeof TargetModel>;
 
 export const DietaryFlag = z.enum([
@@ -171,7 +171,8 @@ export const ASPECT_RATIO_LABELS: Record<AspectRatio, string> = {
 export const MODEL_LABELS: Record<TargetModel, string> = {
   midjourney: "Midjourney",
   sdxl: "SDXL",
-  dalle: "DALL·E",
+  dalle: "DALL·E 3",
+  banana: "Nano Banana",
 };
 
 export const DIETARY_FLAG_LABELS: Record<DietaryFlag, string> = {
