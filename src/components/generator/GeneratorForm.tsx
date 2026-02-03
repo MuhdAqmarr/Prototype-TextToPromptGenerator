@@ -54,6 +54,7 @@ interface GeneratorFormProps {
 
 export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<GeneratorFormInput, unknown, GeneratorInput>({
@@ -78,10 +79,7 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
     },
   });
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processFile = (file: File) => {
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64 = reader.result as string;
@@ -91,6 +89,35 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
       setImagePreview(base64);
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    processFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      processFile(file);
+    }
   };
 
   const removeImage = () => {
@@ -110,11 +137,16 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Image Upload Drop Zone - Moved to Top */}
         <FormItem>
-          <FormLabel>Reference Image (Optional)</FormLabel>
+          <FormLabel>Reference Image</FormLabel>
           <div
             onClick={!imagePreview && !isLoading ? triggerFileInput : undefined}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
             className={`relative border-2 border-dashed rounded-lg p-8 transition-colors ${imagePreview
-                ? "border-primary bg-primary/5"
+              ? "border-primary bg-primary/5"
+              : isDragging
+                ? "border-primary bg-primary/10"
                 : "border-muted-foreground/25 hover:border-muted-foreground/50 cursor-pointer"
               }`}
           >
@@ -135,7 +167,9 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
                     />
                   </svg>
                 </div>
-                <p className="text-sm font-medium mb-1">Drop or upload image here</p>
+                <p className="text-sm font-medium mb-1">
+                  {isDragging ? "Drop image here" : "Drop or upload image here"}
+                </p>
                 <p className="text-xs text-muted-foreground mb-4">
                   AI will analyze your image for better prompts
                 </p>
