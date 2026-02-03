@@ -23,10 +23,12 @@ export class GeminiLLMProvider implements LLMProvider {
     - **Camera Quality:** Specify "film grain", "shot on 35mm", "8k raw photo", "ultra-realistic texture", "depth of field".
 
     **GENERATE 3 DISTINCT VARIANTS:**
-    You must provide specific styling cues for 3 distinct use cases in the 'variantCues' object:
-    1. **safe_commercial**: High-key, evenly lit, clear product focus. Use "studio lighting", "sharp focus". (Cleaner, but ensuring ingredients look real, not plastic).
-    2. **premium_editorial**: "Raw & Authentic". Chiaroscuro lighting, deep shadows, rich textures. "Shot on Kodachrome", "film grain", "imperfect plating", "natural window light".
-    3. **punchy_social**: "Phone Eats First". Harsh flash, high contrast, vibrant. "Flash photography", "hard shadows", "authentic messy vibe", "up close macro".
+    You must provide specific styling cues for 3 distinct use cases in the 'variantCues' object.
+    CRITICAL: The value for each cue must be a SINGLE STRING (a sentence), not an object.
+
+    1. **safe_commercial**: High-key, evenly lit, clear product focus. Use "studio lighting", "sharp focus". (cleaner but authentic).
+    2. **premium_editorial**: "Raw & Authentic". Chiaroscuro lighting, deep shadows, rich textures. "Shot on Kodachrome", "film grain", "imperfect plating".
+    3. **punchy_social**: "Phone Eats First". Harsh flash, high contrast, vibrant. "Flash photography", "hard shadows", "authentic messy vibe".
 
     Given the dish details, generate a structured PromptSpec JSON for image generation.
 
