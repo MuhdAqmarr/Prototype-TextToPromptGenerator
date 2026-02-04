@@ -37,6 +37,8 @@ import {
   MODEL_LABELS,
   DIETARY_FLAG_LABELS,
   PROP_LABELS,
+  LIGHTING_LABELS,
+  QUALITY_LABELS,
   type MarketingGoal,
   type Mood,
   type ShotType,
@@ -45,6 +47,8 @@ import {
   type TargetModel,
   type DietaryFlag,
   type Prop,
+  type LightingStyle,
+  type QualityBoost,
 } from "@/lib/promptSpec";
 import { BRAND_VIBE_PRESETS } from "@/lib/presets";
 
@@ -61,7 +65,7 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
   const form = useForm<GeneratorFormInput, unknown, GeneratorInput>({
     resolver: zodResolver(GeneratorInputSchema),
     defaultValues: {
-      dishName: "Visual Reference (See Analysis)", // Default value to satisfy schema while hidden
+      dishName: "this food image", // Generic subject when using image reference
       keyIngredients: "",
       cuisineStyle: "",
       dietaryFlags: [],
@@ -70,34 +74,60 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
       mood: "fresh",
       shotType: "angle_45",
       background: "studio_seamless",
+      lightingStyle: "softbox", // NEW: Advertising Style default
+      qualityBoosts: ["photorealistic", "8k_resolution"], // NEW: Default quality boosts
       props: [],
       aspectRatio: "1:1",
       targetModel: "midjourney",
       strictIngredients: false,
       leaveNegativeSpace: false,
+      enableVision: false, // NEW: Vision toggle default OFF
       quickFixes: [],
       referenceImageUrl: "",
       referenceImage: undefined,
     },
   });
 
-  const processFile = (file: File) => {
-    // 3MB limit (Next.js serverless payload limit is ~4.5MB, base64 adds 33%)
-    const MAX_SIZE_MB = 3;
+  const processFile = async (file: File) => {
+    // 10MB limit for Vercel Blob
+    const MAX_SIZE_MB = 10;
     if (file.size > MAX_SIZE_MB * 1024 * 1024) {
       alert(`Image is too large. Please upload an image smaller than ${MAX_SIZE_MB}MB.`);
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64 = reader.result as string;
-      // Remove data:image/...;base64, prefix
-      const base64Data = base64.split(",")[1];
-      form.setValue("referenceImage", base64Data);
-      setImagePreview(base64);
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Upload to Vercel Blob
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Upload failed');
+      }
+
+      const { url } = await response.json();
+      
+      // Set the public URL as referenceImageUrl
+      form.setValue('referenceImageUrl', url);
+      
+      // Also set preview for UI
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      
+      console.log('Image uploaded to Vercel Blob:', url);
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Failed to upload image. Please try again.');
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -278,7 +308,6 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
           */}
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
           <FormField
             control={form.control}
             name="marketingGoal"
@@ -305,9 +334,7 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
               </FormItem>
             )}
           />
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="brandVibe"
@@ -332,7 +359,9 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
               </FormItem>
             )}
           />
+        </div>
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="mood"
@@ -357,9 +386,7 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
               </FormItem>
             )}
           />
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="shotType"
@@ -384,7 +411,10 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
               </FormItem>
             )}
           />
+        </div>
 
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="background"
@@ -411,7 +441,99 @@ export function GeneratorForm({ onSubmit, isLoading }: GeneratorFormProps) {
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="lightingStyle"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Lighting Style ✨</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select lighting" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {(Object.keys(LIGHTING_LABELS) as LightingStyle[]).map(
+                      (key) => (
+                        <SelectItem key={key} value={key}>
+                          {LIGHTING_LABELS[key]}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
+
+        {/* NEW: Quality Boost (Full Width for better grid layout) */}
+        <FormItem className="space-y-3 rounded-md border p-4">
+            <FormLabel className="text-base">Quality Boost 🚀</FormLabel>
+            <FormDescription>
+              Select premium attributes to enhance the final image quality.
+            </FormDescription>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {(Object.keys(QUALITY_LABELS) as QualityBoost[]).map((key) => (
+                <FormField
+                  key={key}
+                  control={form.control}
+                  name="qualityBoosts"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value?.includes(key)}
+                          onCheckedChange={(checked) => {
+                            const current = field.value || [];
+                            if (checked) {
+                              field.onChange([...current, key]);
+                            } else {
+                              field.onChange(current.filter((v) => v !== key));
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <Label className="text-sm font-normal cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        {QUALITY_LABELS[key]}
+                      </Label>
+                    </FormItem>
+                  )}
+                />
+              ))}
+            </div>
+        </FormItem>
+
+        {/* Vision Analysis Toggle */}
+        <FormField
+          control={form.control}
+          name="enableVision"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                  Enable Vision Analysis 🔍
+                </FormLabel>
+                <FormDescription>
+                  AI will analyze your image to understand composition, plating, and details.
+                  <br />
+                  <strong>Benefits:</strong> More accurate prompts, better fidelity to original image.
+                  <br />
+                  <strong>Note:</strong> May add detailed descriptions. Turn OFF for pure style transfer.
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField

@@ -97,8 +97,8 @@ export async function POST(request: Request) {
           }
         }
 
-        // If user uploaded an image or we fetched one, analyze it first
-        if (imageToAnalyze && geminiKey) {
+        // Vision Analysis (only if user enabled it)
+        if (input.enableVision && imageToAnalyze && geminiKey) {
           console.log("Analyzing image with Gemini Vision...");
           const visionResult = await analyzeImageWithGemini(imageToAnalyze, geminiKey);
 
@@ -155,6 +155,13 @@ export async function POST(request: Request) {
         if (input.referenceImageUrl) {
           spec.referenceImageUrl = input.referenceImageUrl;
         }
+
+        // CRITICAL: Force inject the original user shotType into modelHints
+        // This ensures the renderer receives the EXACT user selection, bypassing any LLM hallucinations
+        spec.modelHints = {
+          ...spec.modelHints,
+          shotType: input.shotType || "angle_45",
+        };
 
         const renderer =
           input.targetModel === "sdxl"

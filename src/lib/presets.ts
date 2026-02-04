@@ -84,6 +84,27 @@ export const LIGHTING_PRESETS: Record<string, string[]> = {
   ],
 };
 
+// Advertising Style: Magic Lighting Keywords
+export const LIGHTING_MAGIC_KEYWORDS: Record<string, string> = {
+  softbox: "professional softbox lighting with soft even illumination",
+  volumetric: "volumetric lighting with atmospheric haze and light rays",
+  golden_hour: "warm golden hour sunlight with long shadows",
+  rim_lighting: "dramatic rim lighting highlighting edges",
+  natural_window: "soft natural window light with gentle shadows",
+  dramatic_shadow: "dramatic chiaroscuro lighting with deep shadows",
+};
+
+// Advertising Style: Quality Boost Keywords
+export const QUALITY_KEYWORDS: Record<string, string> = {
+  "8k_resolution": "8k resolution, ultra high definition",
+  photorealistic: "photorealistic, lifelike quality",
+  commercial_grade: "commercial grade advertising photography",
+  "85mm_lens": "shot on 85mm lens, professional portrait focal length",
+  bokeh_effect: "beautiful bokeh effect, creamy background blur",
+  sharp_focus: "sharp focus on the food, tack sharp details",
+  vibrant_colors: "vibrant colors, rich color palette",
+};
+
 export const COMPOSITION_RULES: Record<string, string> = {
   menu_hero: "centered hero composition, dish as clear focal point, clean edges",
   promo_banner: "rule of thirds, negative space on left or right for text overlay",

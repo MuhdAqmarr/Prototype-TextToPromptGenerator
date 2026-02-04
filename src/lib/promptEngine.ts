@@ -10,6 +10,8 @@ import {
   FOOD_REALISM_BOOSTERS,
   NEGATIVE_PROMPT_BASE,
   BRAND_VIBE_PRESETS,
+  LIGHTING_MAGIC_KEYWORDS,
+  QUALITY_KEYWORDS,
 } from "./presets";
 import { renderMidjourney } from "@/renderers/midjourney";
 import { renderSDXL } from "@/renderers/sdxl";
@@ -26,8 +28,19 @@ export function buildPromptSpec(input: GeneratorInput): PromptSpec {
       ]
     : [];
 
-  const lightingOptions = LIGHTING_PRESETS[mood] || LIGHTING_PRESETS.fresh;
-  const lighting = lightingOptions[0];
+  // Advertising Style: Use magic lighting keyword if selected, else fallback to mood-based
+  let lighting: string;
+  if (input.lightingStyle && LIGHTING_MAGIC_KEYWORDS[input.lightingStyle]) {
+    lighting = LIGHTING_MAGIC_KEYWORDS[input.lightingStyle];
+  } else {
+    const lightingOptions = LIGHTING_PRESETS[mood] || LIGHTING_PRESETS.fresh;
+    lighting = lightingOptions[0];
+  }
+
+  // Advertising Style: Build quality keywords string from user selection
+  const qualityKeywords = input.qualityBoosts
+    ?.map((q) => QUALITY_KEYWORDS[q] || q.replace(/_/g, " "))
+    .join(", ") || "professional food photography";
 
   const composition = COMPOSITION_RULES[input.marketingGoal];
 
@@ -114,12 +127,13 @@ export function buildPromptSpec(input: GeneratorInput): PromptSpec {
     background: backgroundMap[background],
     props: propsAdjusted,
     mood: `${mood} atmosphere, ${brandKeywords.join(", ")}`.trim(),
-    style: `professional food photography${styleExtra}, ${FOOD_REALISM_BOOSTERS.slice(0, 5).join(", ")}`,
+    style: `${qualityKeywords}${styleExtra}`,
     constraints,
     negative,
     modelHints: {
       aspectRatio: input.aspectRatio,
       targetModel: input.targetModel,
+      shotType: shotType, // Pass original user selection to renderer
     },
     referenceImageUrl: input.referenceImageUrl,
   };
@@ -153,27 +167,43 @@ function buildVariantPrompt(
 
   const modifiers = variantModifiers[variant];
 
-  // Strong global constraints if reference image is present
-  const fidelityConstraints = spec.referenceImageUrl
-    ? "MAINTAIN EXACT PLATING, DO NOT CHANGE CROCKERY, KEEP ORIGINAL LAYOUT"
-    : "";
-
-  const promptParts = [
-    spec.subject,
-    spec.ingredients.length > 0 ? `with ${spec.ingredients.join(", ")}` : "",
-    spec.plating,
-    spec.lighting,
-    spec.camera,
-    spec.background,
-    spec.props.length > 0 ? `props: ${spec.props.join(", ")}` : "",
-    spec.mood,
-    spec.style,
-    modifiers.join(", "),
-    fidelityConstraints, // Add global fidelity constraint
-    spec.constraints.length > 0 ? spec.constraints.join(", ") : "",
-  ]
-    .filter(Boolean)
-    .join(", ");
+  // ADVERTISING STYLE FORMULA: Simplified when reference image is present
+  let promptParts: string;
+  
+  if (spec.referenceImageUrl) {
+    // Clean formula: [Subject/Image] + [Background] + [Lighting] + [Camera] + [Quality]
+    // NO food descriptions - let the image speak for itself
+    promptParts = [
+      "High-end commercial food photography of",
+      // CRITICAL: Ignore LLM subject to prevent hallucinations (e.g., calling Nasi Goreng "Noodles")
+      "the food in the provided image", 
+      spec.background ? `placed on ${spec.background}` : "",
+      spec.lighting,
+      spec.camera,
+      spec.style, // Quality keywords from user selection
+       modifiers.join(", "),
+      "MAINTAIN EXACT PLATING, DO NOT CHANGE CROCKERY, KEEP ORIGINAL LAYOUT",
+    ]
+      .filter(Boolean)
+      .join(", ");
+  } else {
+    // Full description mode (no reference image)
+    promptParts = [
+      spec.subject,
+      spec.ingredients.length > 0 ? `with ${spec.ingredients.join(", ")}` : "",
+      spec.plating,
+      spec.lighting,
+      spec.camera,
+      spec.background,
+      spec.props.length > 0 ? `props: ${spec.props.join(", ")}` : "",
+      spec.mood,
+      spec.style,
+      modifiers.join(", "),
+      spec.constraints.length > 0 ? spec.constraints.join(", ") : "",
+    ]
+      .filter(Boolean)
+      .join(", ");
+  }
 
   const renderer =
     targetModel === "sdxl"

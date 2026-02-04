@@ -34,6 +34,22 @@ export class AnthropicLLMProvider implements LLMProvider {
     - If user asks for "Spicy" but image looks mild, follow the image's colors.
     - The Image is the Source of Truth. The Text is just context.
 
+    **CRITICAL: WHEN VISUAL ANALYSIS IS PROVIDED, DO NOT HALLUCINATE FOOD IDENTITY:**
+    - Set "subject" to EXACTLY: "the food in the provided image" (DO NOT invent a dish name like "Taco" or "Noodles")
+    - Set "ingredients" to an EMPTY ARRAY: []
+    - Set "plating" to: "as shown in the reference image"
+    - Focus ONLY on Lighting, Camera, Background, Mood, and Style.
+    - The renderer (Midjourney/Flux) will use the actual image, not your text description.
+
+    **PRO-MARKETER 2.0 FRAMEWORK (for Nano Banana/Flux):**
+    When generating specs for Flux/Banana, remember the final prompt will follow this structure:
+    1. [CORE MANDATE]: Maintain food identity from reference image
+    2. [SUBJECT]: Marketing goal + mood + props
+    3. [SETTING & COMPOSITION]: Shot type + background (blurred if not top-down)
+    4. [LIGHTING]: Lighting style + quality descriptors
+    5. [TECHNICAL SPECS]: Model, aspect ratio, resolution
+    Your PromptSpec should provide clean, minimal values that fit this framework.
+
     **GENERATE 3 DISTINCT VARIANTS:**
     You must provide specific styling cues for 3 distinct use cases in the 'variantCues' object.
     CRITICAL: The value for each cue must be a SINGLE STRING (a sentence), not an object.

@@ -25,6 +25,48 @@ export const Background = z.enum([
 ]);
 export type Background = z.infer<typeof Background>;
 
+// Advertising Style: Lighting Magic Keywords
+export const LightingStyle = z.enum([
+  "softbox",
+  "volumetric",
+  "golden_hour",
+  "rim_lighting",
+  "natural_window",
+  "dramatic_shadow",
+]);
+export type LightingStyle = z.infer<typeof LightingStyle>;
+
+export const LIGHTING_LABELS: Record<LightingStyle, string> = {
+  softbox: "Softbox Lighting",
+  volumetric: "Volumetric Lighting",
+  golden_hour: "Golden Hour",
+  rim_lighting: "Rim Lighting",
+  natural_window: "Natural Window Light",
+  dramatic_shadow: "Dramatic Shadows",
+};
+
+// Advertising Style: Quality Boost Keywords
+export const QualityBoost = z.enum([
+  "8k_resolution",
+  "photorealistic",
+  "commercial_grade",
+  "85mm_lens",
+  "bokeh_effect",
+  "sharp_focus",
+  "vibrant_colors",
+]);
+export type QualityBoost = z.infer<typeof QualityBoost>;
+
+export const QUALITY_LABELS: Record<QualityBoost, string> = {
+  "8k_resolution": "8K Resolution",
+  photorealistic: "Photorealistic",
+  commercial_grade: "Commercial Grade",
+  "85mm_lens": "Shot on 85mm Lens",
+  bokeh_effect: "Bokeh Effect",
+  sharp_focus: "Sharp Focus on Food",
+  vibrant_colors: "Vibrant Colors",
+};
+
 export const AspectRatio = z.enum(["1:1", "4:5", "9:16", "16:9"]);
 export type AspectRatio = z.infer<typeof AspectRatio>;
 
@@ -75,13 +117,16 @@ export const GeneratorInputSchema = z.object({
   mood: Mood.optional(),
   shotType: ShotType.optional(),
   background: Background.optional(),
+  lightingStyle: LightingStyle.optional(), // NEW: Advertising Style Lighting
+  qualityBoosts: z.array(QualityBoost).optional(), // NEW: Quality keyword multi-select
   props: z.array(Prop).optional(),
   aspectRatio: AspectRatio.default("1:1"),
   targetModel: TargetModel.default("midjourney"),
   strictIngredients: z.boolean().default(false),
   leaveNegativeSpace: z.boolean().default(false),
+  enableVision: z.boolean().default(false), // NEW: Toggle for Vision Analysis
   quickFixes: z.array(QuickFix).optional(),
-  referenceImageUrl: z.string().url("Must be a valid URL").optional(),
+  referenceImageUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   visualAnalysis: z.string().optional(), // Analysis from Gemini Vision
   referenceImage: z.string().optional(), // base64-encoded image (legacy)
 });
